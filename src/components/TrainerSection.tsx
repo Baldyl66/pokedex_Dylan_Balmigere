@@ -22,7 +22,7 @@ export default function TrainerSection({
   const activeTrainer = trainers.find(t => t.id === activeTrainerId);
 
   return (
-    <>
+    <section className="trainer-section">
       <h1>Créer vos dresseurs</h1>
       
       {trainers.length < 2 && (
@@ -45,6 +45,6 @@ export default function TrainerSection({
           <h2>Pokémons de {activeTrainer.name}</h2>
         </div>
       )}
-    </>
+    </section>
   );
 }

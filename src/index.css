@@ -11,23 +11,56 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: auto;
+  overflow: visible;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+html {
+  height: auto;
+  overflow: visible;
+  scrollbar-width: auto;
 }
-a:hover {
-  color: #535bf2;
+
+html::-webkit-scrollbar {
+  width: 12px;
+}
+
+html::-webkit-scrollbar-track {
+  background: #242424;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: #646cff;
+  border-radius: 6px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: #535bf2;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  height: auto;
+  overflow: visible;
+  scrollbar-width: auto;
+}
+
+body::-webkit-scrollbar {
+  width: 12px;
+}
+
+body::-webkit-scrollbar-track {
+  background: #242424;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: #646cff;
+  border-radius: 6px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: #535bf2;
 }
 
 h1 {

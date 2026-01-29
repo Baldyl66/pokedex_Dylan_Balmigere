@@ -1,55 +1,21 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './App.css'
-import type { Trainer, Pokemon } from './types'
-import { fetchPokemons } from './services/pokemonService'
+import type { Trainer } from './types'
+import { useGetPokemonQuery } from './store/slices/pokemonApi'
 import TrainerSection from './components/TrainerSection'
 
 function App() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const { data: pokemons = [], isLoading, isFetching } = useGetPokemonQuery()
   const [trainers, setTrainers] = useState<Trainer[]>([]);
   const [newName, setNewName] = useState('');
   const [activeTrainerId, setActiveTrainerId] = useState<number | null>(null);
-  const [pokemons, setPokemons] = useState<Pokemon[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [language, setLanguage] = useState<'fr' | 'en'>(() => {
-    const paramLang = searchParams.get('lang');
-    return (paramLang === 'en' || paramLang === 'fr') ? paramLang : 'fr';
-  });
   const [searchTerm, setSearchTerm] = useState('');
 
-  const translations = {
-    fr: {
-      loading: 'Chargement...',
-      searchPlaceholder: 'Rechercher un Pokémon...'
-    },
-    en: {
-      loading: 'Loading...',
-      searchPlaceholder: 'Search a Pokémon...'
-    }
-  } as const;
-  const t = translations[language];
-
   const displayedPokemons = pokemons.filter(p =>
-    p.name[language].toLowerCase().includes(searchTerm.trim().toLowerCase())
+    p.name.fr.toLowerCase().includes(searchTerm.trim().toLowerCase())
   );
-
-  useEffect(() => {
-    const loadPokemons = async () => {
-      try {
-        const data = await fetchPokemons();
-        const filteredData = data.filter(pokemon => pokemon.pokedex_id !== 0);
-        setPokemons(filteredData);
-      } catch (err) {
-        console.error('Erreur lors du chargement des Pokémons:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadPokemons();
-  }, []);
 
   const addTrainer = () => {
     if (newName.trim() && trainers.length < 2) {
@@ -62,33 +28,51 @@ function App() {
 
   return (
     <>
-      <div className="lang-toggle" role="tablist" aria-label="Choix de la langue">
-        <button
-          className={language === 'fr' ? 'active' : ''}
-          aria-pressed={language === 'fr'}
-          onClick={() => setLanguage('fr')}
-          title="Français"
-        >
-          🇫🇷
-        </button>
-        <button
-          className={language === 'en' ? 'active' : ''}
-          aria-pressed={language === 'en'}
-          onClick={() => setLanguage('en')}
-          title="English"
-        >
-          🇬🇧
-        </button>
-      </div>
-
       <div className="search-bar">
-        <input
-          type="search"
-          placeholder={t.searchPlaceholder}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          aria-label={t.searchPlaceholder}
-        />
+        <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <input
+            type="search"
+            placeholder="Rechercher un Pokémon..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Rechercher un Pokémon"
+          />
+          {!isFetching && pokemons.length > 0 && (
+            <span style={{
+              position: 'absolute',
+              right: '1.5rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontSize: '0.75rem',
+              backgroundColor: '#00D9FF',
+              color: '#1a1f2e',
+              padding: '0.25rem 0.6rem',
+              borderRadius: '20px',
+              fontWeight: 'bold',
+              whiteSpace: 'nowrap'
+            }}>
+              ✓ Cache
+            </span>
+          )}
+          {isFetching && (
+            <span style={{
+              position: 'absolute',
+              right: '1.5rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontSize: '0.75rem',
+              backgroundColor: '#FF2E5E',
+              color: '#ffffff',
+              padding: '0.25rem 0.6rem',
+              borderRadius: '20px',
+              fontWeight: 'bold',
+              whiteSpace: 'nowrap',
+              animation: 'pulse 1.5s infinite'
+            }}>
+              ⟳ Chargement...
+            </span>
+          )}
+        </div>
       </div>
 
       <TrainerSection
@@ -101,19 +85,19 @@ function App() {
       />
 
       <section className="pokemon-list">
-        {loading ? (
-          <p>{t.loading}</p>
+        {isLoading ? (
+          <p>Chargement...</p>
         ) : (
           <div className="grid">
             {displayedPokemons.map((pokemon) => (
                <button
                  key={pokemon.pokedex_id}
                  className="pokemon-card"
-                 onClick={() => navigate(`/pokemon/${pokemon.pokedex_id}?lang=${language}`)}
-                 aria-label={pokemon.name[language]}
+                 onClick={() => navigate(`/pokemon/${pokemon.pokedex_id}`)}
+                 aria-label={pokemon.name.fr}
                >
-                <img src={pokemon.sprites.regular} alt={pokemon.name[language]} />
-                <h3>{pokemon.name[language]}</h3>
+                <img src={pokemon.sprites.regular} alt={pokemon.name.fr} />
+                <h3>{pokemon.name.fr}</h3>
                </button>
              ))}
           </div>

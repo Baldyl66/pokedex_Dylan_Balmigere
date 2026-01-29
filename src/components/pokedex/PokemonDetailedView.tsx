@@ -1,238 +1,291 @@
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import type { Pokemon } from "../../types";
-import { fetchPokemons } from "../../services/pokemonService";
-import "../../App.css";
+import { useGetPokemonQuery } from "../../store/slices/pokemonApi";
+import "./PokemonDetailedView.css";
 
 export default function PokemonDetailedView() {
   const { pokeId } = useParams<{ pokeId: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const { data: allPokemons = [], isLoading } = useGetPokemonQuery();
   const [pokemon, setPokemon] = useState<Pokemon | null>(null);
-  const [allPokemons, setAllPokemons] = useState<Pokemon[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showShiny, setShowShiny] = useState(false);
-  const [language, setLanguage] = useState<'fr' | 'en'>(() => {
-    const paramLang = searchParams.get('lang');
-    return (paramLang === 'en' || paramLang === 'fr') ? paramLang : 'fr';
-  });
 
-  const translations = {
-    fr: { 
-      hp: 'PV', atk: 'Attaque', def: 'Défense', spe_atk: 'Att. Spé', spe_def: 'Déf. Spé', vit: 'Vitesse', 
-      evolution: 'Évolution', shiny: 'Shiny', normal: 'Normal',
-      types: 'Types', talents: 'Talents', resistances: 'Résistances'
-    },
-    en: { 
-      hp: 'HP', atk: 'Attack', def: 'Defense', spe_atk: 'Sp. Atk', spe_def: 'Sp. Def', vit: 'Speed', 
-      evolution: 'Evolution', shiny: 'Shiny', normal: 'Normal',
-      types: 'Types', talents: 'Abilities', resistances: 'Resistances'
-    }
+  const translations: Record<string, string> = {
+    hp: 'PV',
+    atk: 'Attaque',
+    def: 'Défense',
+    spe_atk: 'Att. Spé',
+    spe_def: 'Déf. Spé',
+    vit: 'Vitesse'
   };
-  const t = translations[language];
 
-  useEffect(() => {
-    const loadPokemon = async () => {
-      try {
-        const data = await fetchPokemons();
-        setAllPokemons(data);
-        const found = data.find(p => p.pokedex_id === parseInt(pokeId || '0'));
-        setPokemon(found || null);
-      } catch (err) {
-        console.error('Erreur:', err);
-      } finally {
-        setLoading(false);
-      }
+  const getTypeColor = (typeName: string): string => {
+    const map: Record<string, string> = {
+      normal: '#A8A868',
+      fire: '#FF6B35',
+      water: '#6890F0',
+      electric: '#FFD700',
+      grass: '#78C850',
+      ice: '#98D8D8',
+      fighting: '#FF2E5E',
+      poison: '#A040A0',
+      ground: '#E0C068',
+      flying: '#A890F0',
+      psychic: '#F85888',
+      bug: '#A8B820',
+      rock: '#B8A038',
+      ghost: '#705898',
+      dragon: '#7038F8',
+      dark: '#705848',
+      steel: '#B8B8D0',
+      fairy: '#EE99AC',
+      eau: '#6890F0',
+      feu: '#FF6B35',
+      plante: '#78C850',
+      électrik: '#FFD700',
+      combat: '#FF2E5E',
+      sol: '#E0C068',
+      vol: '#A890F0',
+      psy: '#F85888',
+      insecte: '#A8B820',
+      roche: '#B8A038',
+      spectre: '#705898',
+      tenebre: '#705848',
+      acier: '#B8B8D0',
+      fée: '#EE99AC'
     };
-    loadPokemon();
-  }, [pokeId]);
-
-  const getSpriteById = (id?: number) => {
-    if (!id) return undefined;
-    const found = allPokemons.find((x) => x.pokedex_id === id);
-    return found?.sprites?.regular;
+    return map[(typeName || '').toLowerCase()] || '#9e9e9e';
   };
 
-  const getNameById = (id?: number) => {
-    if (!id) return undefined;
-    const found = allPokemons.find((x) => x.pokedex_id === id);
-    return found ? found.name[language] : undefined;
+  // Première charge seulement
+  useEffect(() => {
+    if (allPokemons.length === 0) return;
+
+    const pokeIdNum = parseInt(pokeId || '0');
+    const found = allPokemons.find(p => p.pokedex_id === pokeIdNum);
+    
+    if (found) {
+      console.log('Pokemon trouvé:', found);
+      console.log('Evolution data:', found.evolution);
+    }
+    
+    setPokemon(found || null);
+  }, [pokeId, allPokemons]);
+
+  if (isLoading || !pokemon) {
+    return (
+      <div className="pokemon-detailed-page">
+        <h2 style={{ fontSize: '2rem', textShadow: '0 0 20px rgba(255, 46, 94, 0.8)' }}>
+          SYSTÈME EN DÉMARRAGE...
+        </h2>
+      </div>
+    );
+  }
+
+  // Construire la chaîne complète d'évolutions (pré-évolutions + actuel + post-évolutions)
+  const getEvolutions = () => {
+    const evos: Pokemon[] = [];
+    
+    // Chercher les pré-évolutions
+    if (pokemon.evolution?.pre && Array.isArray(pokemon.evolution.pre)) {
+      pokemon.evolution.pre.forEach((evoId: any) => {
+        const id = typeof evoId === 'object' ? evoId.pokedex_id || evoId.id : evoId;
+        const preEvo = allPokemons.find(p => p.pokedex_id === id);
+        if (preEvo) evos.push(preEvo);
+      });
+    }
+    
+    // Ajouter le pokémon actuel au milieu
+    evos.push(pokemon);
+    
+    // Chercher les post-évolutions
+    if (pokemon.evolution?.next && Array.isArray(pokemon.evolution.next)) {
+      pokemon.evolution.next.forEach((evoId: any) => {
+        const id = typeof evoId === 'object' ? evoId.pokedex_id || evoId.id : evoId;
+        const postEvo = allPokemons.find(p => p.pokedex_id === id);
+        if (postEvo) evos.push(postEvo);
+      });
+    }
+
+    console.log('Evolutions trouvées:', evos);
+    
+    // Retourner seulement si plus d'un pokémon dans la chaîne
+    return evos.length > 1 ? evos : null;
   };
 
-  const getEvolutionChain = (p: Pokemon) => {
-    const chain: { pokedex_id?: number; name?: string }[] = [];
-    const evoObj: any = (p as any).evolution ?? (p as any).evolutions ?? null;
-    
-    if (!evoObj) return chain;
-    
-    if (Array.isArray(evoObj)) {
-      return evoObj.map((e: any) => ({ pokedex_id: e.pokedex_id }));
-    }
-    
-    if (evoObj.pre && Array.isArray(evoObj.pre)) {
-      evoObj.pre.forEach((e: any) => chain.push({ pokedex_id: e.pokedex_id }));
-    }
-    
-    chain.push({ pokedex_id: p.pokedex_id });
-    
-    if (evoObj.next && Array.isArray(evoObj.next)) {
-      evoObj.next.forEach((e: any) => chain.push({ pokedex_id: e.pokedex_id }));
-    }
-    
-    return chain;
-  };
-
-  if (loading) return <p style={{ textAlign: 'center', padding: '2rem' }}>Chargement...</p>;
-  if (!pokemon) return <p style={{ textAlign: 'center', padding: '2rem' }}>Pokémon non trouvé</p>;
+  const evolutions = getEvolutions();
+  const mainColor = getTypeColor(pokemon.types?.[0]?.name || 'normal');
 
   return (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <div className="lang-toggle" role="tablist" aria-label="Choix de la langue">
-        <button
-          className={language === 'fr' ? 'active' : ''}
-          aria-pressed={language === 'fr'}
-          onClick={() => setLanguage('fr')}
-          title="Français"
-        >
-          🇫🇷
-        </button>
-        <button
-          className={language === 'en' ? 'active' : ''}
-          aria-pressed={language === 'en'}
-          onClick={() => setLanguage('en')}
-          title="English"
-        >
-          🇬🇧
-        </button>
-      </div>
+    <div 
+      className="pokemon-detailed-page"
+      style={{
+        '--main-color': mainColor,
+        '--main-color-light': mainColor + '33',
+        '--main-color-dark': mainColor + 'cc'
+      } as React.CSSProperties}
+    >
+      <div className="modern-card">
+        {/* SECTION GAUCHE - LE SCREEN */}
+        <div className="hero-image-container">
+          <div className="pokemon-id-bg">#{String(pokemon.pokedex_id).padStart(3, '0')}</div>
 
-      <button onClick={() => navigate(`/?lang=${language}`)} style={{ marginBottom: '1rem', padding: '0.5rem 1rem', cursor: 'pointer' }}>
-        ← Retour
-      </button>
-      
-      <section className="selected-pokemon detailed-view">
-        <h2>{pokemon.name[language]} (#{pokemon.pokedex_id})</h2>
-        <img
-          src={showShiny && pokemon.sprites.shiny ? pokemon.sprites.shiny : pokemon.sprites.regular}
-          alt={pokemon.name[language]}
-        />
-        {pokemon.sprites.shiny && (
-          <button className="shiny-toggle" onClick={() => setShowShiny(s => !s)} aria-pressed={showShiny}>
-            {showShiny ? t.normal : t.shiny}
-          </button>
-        )}
+          <img
+            src={showShiny && pokemon.sprites.shiny ? pokemon.sprites.shiny : pokemon.sprites.regular}
+            className="main-sprite"
+            alt={pokemon.name.fr}
+            key={`${pokemon.pokedex_id}-${showShiny}`}
+          />
 
-        {/* Types */}
-        {pokemon.types && pokemon.types.length > 0 && (
-          <div style={{ marginTop: '1rem' }}>
-            <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{t.types}</h3>
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {pokemon.types.map((type: any) => (
-                <div key={type.name} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#f4f4f6', padding: '0.5rem 0.8rem', borderRadius: '8px' }}>
-                  {type.image && <img src={type.image} alt={type.name} style={{ width: '20px', height: '20px' }} />}
-                  <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>{type.name}</span>
-                </div>
-              ))}
-            </div>
+          <div className="nav-buttons-container">
+            <button
+              className="nav-console-btn"
+              onClick={() => navigate(`/pokemon/${Math.max(1, pokemon.pokedex_id - 1)}`)}
+              disabled={pokemon.pokedex_id <= 1}
+            >
+              ◀
+            </button>
+            <button
+              className="nav-console-btn"
+              onClick={() => navigate(`/pokemon/${pokemon.pokedex_id + 1}`)}
+            >
+              ▶
+            </button>
           </div>
-        )}
-
-        {/* Talents */}
-        {pokemon.talents && pokemon.talents.length > 0 && (
-          <div style={{ marginTop: '1rem' }}>
-            <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{t.talents}</h3>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
-              {pokemon.talents.map((talent: any) => (
-                <li key={talent.name} style={{ background: '#f4f4f6', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem', fontWeight: '600' }}>
-                  {talent.name} {talent.tc && <span style={{ color: '#ff6b6b' }}>*</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div className="stats">
-          {pokemon.stats ? (
-            <ul>
-              <li><strong>{t.hp}:</strong> {pokemon.stats.hp}</li>
-              <li><strong>{t.atk}:</strong> {pokemon.stats.atk}</li>
-              <li><strong>{t.def}:</strong> {pokemon.stats.def}</li>
-              <li><strong>{t.spe_atk}:</strong> {pokemon.stats.spe_atk}</li>
-              <li><strong>{t.spe_def}:</strong> {pokemon.stats.spe_def}</li>
-              <li><strong>{t.vit}:</strong> {pokemon.stats.vit}</li>
-            </ul>
-          ) : (
-            <p>Stats non disponibles</p>
-          )}
         </div>
 
-        {/* Résistances */}
-        {pokemon.resistances && pokemon.resistances.length > 0 && (
-          <div style={{ marginTop: '1rem' }}>
-            <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{t.resistances}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.5rem', maxWidth: '600px', margin: '0 auto' }}>
-              {pokemon.resistances
-                .sort((a: any, b: any) => a.multiplier - b.multiplier)
-                .map((res: any) => {
-                const colors: { [key: number]: string } = {
-                  0.25: '#4caf50',
-                  0.5: '#81c784',
-                  1: '#9e9e9e',
-                  2: '#ff9800',
-                  4: '#f44336'
-                };
-                const color = colors[res.multiplier] || '#9e9e9e';
+        {/* SECTION DROITE - DONNÉES */}
+        <div className="data-content">
+          {/* TITRE ET ID */}
+          <div className="pokemon-header">
+            <h1>{pokemon.name.fr}</h1>
+            <p>LV.{pokemon.pokedex_id}</p>
+          </div>
+
+          {/* TYPES */}
+          {pokemon.types && pokemon.types.length > 0 && (
+            <div className="types-container">
+              {pokemon.types.map(t => (
+                <span
+                  key={t.name}
+                  className="type-badge"
+                  style={{
+                    backgroundColor: getTypeColor(t.name),
+                    borderColor: getTypeColor(t.name),
+                    boxShadow: `0 0 15px ${getTypeColor(t.name)}99`
+                  }}
+                >
+                  {t.name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* TAILLE ET POIDS */}
+          <div className="measurements-grid">
+            <div className="measurement-item">
+              <h4>Taille</h4>
+              <p>{pokemon.height ? `${pokemon.height}m` : 'N/A'}</p>
+            </div>
+            <div className="measurement-item">
+              <h4>Poids</h4>
+              <p>{pokemon.weight ? `${pokemon.weight}kg` : 'N/A'}</p>
+            </div>
+          </div>
+
+          {/* STATS */}
+          {pokemon.stats && (
+            <div className="stats-section">
+              <h3>STATISTIQUES</h3>
+              {Object.entries(pokemon.stats).map(([key, val]: any) => {
+                let statColor = '#FFD700';
+                if (key === 'hp') statColor = '#FF2E5E';
+                else if (key === 'atk') statColor = '#FF6B35';
+                else if (key === 'def') statColor = '#FF9500';
+                else if (key === 'spe_atk') statColor = '#00D9FF';
+                else if (key === 'spe_def') statColor = '#D946EF';
+                else if (key === 'vit') statColor = '#FFD700';
+
                 return (
-                  <div key={res.name} style={{ background: color, color: '#fff', padding: '0.5rem', borderRadius: '6px', fontSize: '0.85rem', fontWeight: '600', textAlign: 'center' }}>
-                    <div>{res.name}</div>
-                    <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>×{res.multiplier}</div>
+                  <div key={key} className="stat-item">
+                    <div className="stat-label-row">
+                      <span className="stat-name">{translations[key] || key}</span>
+                      <span className="stat-value">{val}</span>
+                    </div>
+                    <div className="stat-bar-bg">
+                      <div
+                        className="stat-bar-fill"
+                        style={{
+                          width: `${(val / 180) * 100}%`,
+                          background: `linear-gradient(90deg, ${statColor}, ${statColor}99)`,
+                          color: statColor
+                        }}
+                      />
+                    </div>
                   </div>
                 );
               })}
             </div>
-          </div>
-        )}
+          )}
 
-        {(() => {
-          const chain = getEvolutionChain(pokemon);
-          if (!chain || chain.length === 0) return null;
-          return (
-            <div className="evolution">
-              <h4 style={{ marginTop: '1.5rem', marginBottom: '1rem', fontSize: '1rem', fontWeight: '700', color: '#111' }}>{t.evolution}</h4>
-              <div className="evolution-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.2rem', flexWrap: 'wrap', padding: '1rem 0.5rem' }}>
-                {chain.map((step, idx) => (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem' }}>
-                      {step.pokedex_id ? (
-                        <img 
-                          src={getSpriteById(step.pokedex_id) ?? pokemon.sprites.regular} 
-                          alt={String(getNameById(step.pokedex_id) ?? pokemon.name[language])}
-                          style={{ width: '80px', height: '80px', objectFit: 'contain', background: '#f9f9f9', borderRadius: '8px', padding: '8px', border: '2px solid #e6e6e9' }}
-                        />
-                      ) : (
-                        <div style={{ width: '80px', height: '80px', background: '#f0f0f0', borderRadius: '8px', border: '2px dashed #ccc' }} />
-                      )}
-                      <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#111', textAlign: 'center', minWidth: '100px' }}>
-                        {getNameById(step.pokedex_id) ?? pokemon.name[language]}
-                      </div>
-                      {step.pokedex_id && (
-                        <div style={{ fontSize: '0.75rem', color: '#999', fontWeight: '600' }}>
-                          #{step.pokedex_id}
-                        </div>
-                      )}
-                    </div>
-                    {idx < chain.length - 1 && (
-                      <div style={{ fontSize: '1.8rem', color: '#bdbdf0', fontWeight: '700', marginBottom: '1.5rem' }}>
-                        →
-                      </div>
+          {/* ATTAQUES */}
+          {pokemon.talents && pokemon.talents.length > 0 && (
+            <div className="moves-section">
+              <h3>TALENTS</h3>
+              <div className="moves-grid">
+                {pokemon.talents.map((talent, idx) => (
+                  <div key={idx} className="move-item">
+                    <p className="move-name">{talent.name}</p>
+                    {talent.tc && (
+                      <span className="talent-hidden">Caché</span>
                     )}
                   </div>
                 ))}
               </div>
             </div>
-          );
-        })()}
-      </section>
+          )}
+
+          {/* ÉVOLUTIONS */}
+          {evolutions && (
+            <div className="evolution-section">
+              <h3>ÉVOLUTIONS</h3>
+              <div className="evolution-chain">
+                {evolutions.map((evo, idx) => (
+                  <div key={evo.pokedex_id}>
+                    <div 
+                      className="evolution-item"
+                      onClick={() => navigate(`/pokemon/${evo.pokedex_id}`)}
+                      style={{ 
+                        border: evo.pokedex_id === pokemon.pokedex_id 
+                          ? '2px solid #00D9FF' 
+                          : '2px solid rgba(255, 46, 94, 0.3)'
+                      }}
+                    >
+                      <img 
+                        src={evo.sprites.regular} 
+                        alt={evo.name.fr}
+                      />
+                      <p>{evo.name.fr}</p>
+                    </div>
+                    {idx < evolutions.length - 1 && <span className="evolution-arrow">→</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* BOUTONS */}
+          <div className="button-group">
+            <button className="shiny-button" onClick={() => setShowShiny(!showShiny)}>
+              {showShiny ? '✓ NORMAL' : '✨ SHINY'}
+            </button>
+            <button className="back-button" onClick={() => navigate('/')}>
+              ← RETOUR
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

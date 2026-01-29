@@ -10,6 +10,12 @@ export interface PokemonStat {
 export interface PokemonAbility {
   name: string;
   effect?: string;
+  tc?: boolean;
+}
+
+export interface PokemonResistance {
+  name: string;
+  multiplier: number;
 }
 
 export interface PokemonEvolution {
@@ -45,7 +51,10 @@ export interface Pokemon {
   height?: number;
   weight?: number; 
   abilities?: PokemonAbility[];
+  talents?: PokemonAbility[];
   evolutions?: PokemonEvolution[];
+  evolution?: { pre?: any[]; next?: any[] };
+  resistances?: PokemonResistance[];
 }
 
 export interface Trainer {
