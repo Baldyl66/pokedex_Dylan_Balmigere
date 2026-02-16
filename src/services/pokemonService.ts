@@ -3,7 +3,7 @@ import type { Pokemon } from '../types';
 export const fetchPokemons = async (): Promise<Pokemon[]> => {
   try {
     console.log('Début du chargement...');
-    const response = await fetch('https://tyradex.vercel.app/api/v1/pokemon');
+    const response = await fetch('https://tyradex.app/api/v1/pokemon');
     console.log('Statut:', response.status);
     
     if (!response.ok) {

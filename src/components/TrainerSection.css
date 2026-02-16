@@ -1,0 +1,114 @@
+.trainer-section {
+  width: 100%;
+  padding: 2rem;
+  position: relative;
+}
+
+.trainer-section-layout {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.trainer-form-wrapper {
+  display: none;
+}
+
+/* Vignette flottante des dresseurs */
+.trainer-floating-panel {
+  position: fixed;
+  right: 20px;
+  top: 120px;
+  width: 280px;
+  background: linear-gradient(135deg, #1e2d42 0%, #172341 100%);
+  border: 3px solid #00D9FF;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 0 30px rgba(0, 217, 255, 0.4), inset 0 0 10px rgba(0, 217, 255, 0.1);
+  z-index: 50;
+  max-height: 70vh;
+  overflow-y: auto;
+  animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.trainer-floating-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.trainer-floating-panel::-webkit-scrollbar-track {
+  background: rgba(0, 217, 255, 0.1);
+  border-radius: 10px;
+}
+
+.trainer-floating-panel::-webkit-scrollbar-thumb {
+  background: #00D9FF;
+  border-radius: 10px;
+}
+
+.trainer-floating-panel::-webkit-scrollbar-thumb:hover {
+  background: #00FFFF;
+}
+
+.active-trainer-section {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.active-trainer-section h2 {
+  color: #00D9FF;
+  font-size: 1.5rem;
+  text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .trainer-floating-panel {
+    position: fixed;
+    right: 10px;
+    width: 250px;
+    padding: 1rem;
+    top: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .trainer-floating-panel {
+    position: fixed;
+    right: 5px;
+    top: 120px;
+    width: 200px;
+    padding: 0.8rem;
+    max-height: 50vh;
+  }
+
+  .trainer-floating-panel .trainers-grid {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .trainer-floating-panel {
+    width: 100%;
+    right: 0;
+    left: 0;
+    top: auto;
+    bottom: 0;
+    border-radius: 16px 16px 0 0;
+    max-height: 40vh;
+  }
+}

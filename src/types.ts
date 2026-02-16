@@ -1,6 +1,7 @@
 export interface Trainer {
   id: number;
   name: string;
+  favorites: number[]; // IDs des Pokémons en favoris
 }
 
 export interface Pokemon {
