@@ -1,21 +1,27 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './App.css'
-import type { Trainer } from './types'
 import { useGetPokemonQuery } from './store/slices/pokemonApi'
+import { addTrainer, setActiveTrainer, toggleFavorite as toggleFavoritAction } from './store/slices/trainers-slices'
+import { useAppDispatch } from './hooks/useAppDispatch'
+import { useAppSelector } from './hooks/useAppSelector'
 import TrainerSection from './components/TrainerSection'
 import TrainerList from './components/TrainerList'
 import FavoritesList from './components/FavoritesList'
 
 function App() {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  
   // Récupère la liste des Pokémons depuis l'API avec gestion du cache
   const { data: pokemons = [], isLoading, isFetching } = useGetPokemonQuery()
   
-  // Gestion de l'état global
-  const [trainers, setTrainers] = useState<Trainer[]>([]); // Liste des dresseurs
+  // État Redux pour les dresseurs
+  const trainers = useAppSelector(state => state.trainers.trainers)
+  const activeTrainerId = useAppSelector(state => state.trainers.activeTrainerId)
+  
+  // État local pour la recherche
   const [newName, setNewName] = useState(''); // Champ saisie nouveau dresseur
-  const [activeTrainerId, setActiveTrainerId] = useState<number | null>(null); // Dresseur actuellement sélectionné
   const [searchTerm, setSearchTerm] = useState(''); // Filtre de recherche
 
   const displayedPokemons = pokemons.filter(p =>
@@ -23,28 +29,17 @@ function App() {
   );
 
   // Ajoute un nouveau dresseur avec un maximum de 2
-  const addTrainer = () => {
+  const handleAddTrainer = () => {
     if (newName.trim() && trainers.length < 2) {
-      const newTrainer: Trainer = { id: Date.now(), name: newName, favorites: [] };
-      setTrainers([...trainers, newTrainer]);
+      dispatch(addTrainer(newName));
       setNewName('');
-      if (trainers.length === 0) setActiveTrainerId(newTrainer.id);
     }
   };
 
   // Ajoute ou retire un Pokémon des favoris du dresseur actif
   const toggleFavorite = (pokemonId: number) => {
     if (!activeTrainerId) return;
-    
-    setTrainers(trainers.map(trainer => {
-      if (trainer.id === activeTrainerId) {
-        const favorites = trainer.favorites.includes(pokemonId)
-          ? trainer.favorites.filter(id => id !== pokemonId)
-          : [...trainer.favorites, pokemonId];
-        return { ...trainer, favorites };
-      }
-      return trainer;
-    }));
+    dispatch(toggleFavoritAction(pokemonId));
   };
 
   // Vérifie si un Pokémon est en favori chez le dresseur actif
@@ -113,7 +108,7 @@ function App() {
 
           {/* Formulaire trainer à droite OU dresseurs quand il y en a 2 */}
           {trainers.length < 2 ? (
-            <form onSubmit={(e) => { e.preventDefault(); addTrainer(); }} className="trainer-form-inline">
+            <form onSubmit={(e) => { e.preventDefault(); handleAddTrainer(); }} className="trainer-form-inline">
               <input
                 type="text"
                 value={newName}
@@ -129,7 +124,7 @@ function App() {
               <TrainerList
                 trainers={trainers}
                 activeTrainerId={activeTrainerId}
-                onSelectTrainer={setActiveTrainerId}
+                onSelectTrainer={(id) => dispatch(setActiveTrainer(id))}
               />
             </div>
           )}
@@ -141,8 +136,8 @@ function App() {
         newName={newName}
         activeTrainerId={activeTrainerId}
         onNameChange={setNewName}
-        onAddTrainer={addTrainer}
-        onSelectTrainer={setActiveTrainerId}
+        onAddTrainer={handleAddTrainer}
+        onSelectTrainer={(id) => dispatch(setActiveTrainer(id))}
       />
 
       <section className="pokemon-list">

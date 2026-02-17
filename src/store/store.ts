@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import pokemonReducer from "./slices/pokemon-slices";
+import trainersReducer from "./slices/trainers-slices";
 import { pokemonApi } from "./slices/pokemonApi";
 
 //--- Configuration du store Redux avec les reducers et middleware
@@ -7,6 +8,7 @@ import { pokemonApi } from "./slices/pokemonApi";
 export const store = configureStore({
   reducer: {
     pokemon: pokemonReducer,                      //--- Slice pour la gestion des Pokémons capturés
+    trainers: trainersReducer,                    //--- Slice pour la gestion des dresseurs
     [pokemonApi.reducerPath]: pokemonApi.reducer //--- API RTK Query
   },
 
