@@ -1,4 +1,4 @@
-import type { Trainer } from '../types';
+import type { Trainer } from '../../types';
 import './TrainerList.css';
 
 interface TrainerListProps {

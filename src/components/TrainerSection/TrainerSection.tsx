@@ -1,6 +1,6 @@
-import type { Trainer } from '../types';
-import TrainerForm from './TrainerForm';
-import TrainerList from './TrainerList';
+import type { Trainer } from '../../types';
+import TrainerForm from '../TrainerForm';
+import TrainerList from '../TrainerList/TrainerList';
 import './TrainerSection.css';
 
 interface TrainerSectionProps {

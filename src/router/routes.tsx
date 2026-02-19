@@ -1,7 +1,7 @@
 import type { RouteObject } from "react-router-dom";
 import App from "../App";
-import PokemonDetailedView from "../components/pokedex/PokemonDetailedView";
-import NotFound from "../components/NotFound";
+import PokemonDetailedView from "../components/PokemonDetailed/PokemonDetailedView";
+import NotFound from "../components/404/NotFound";
 import RootLayout from "./RootLayout";
 
 const myRoutes: RouteObject[] = [

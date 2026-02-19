@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import type { Trainer, Pokemon } from '../types';
+import type { Trainer, Pokemon } from '../../types';
 import './FavoritesList.css';
 
 interface FavoritesListProps {
@@ -38,6 +38,9 @@ export default function FavoritesList({ trainer, pokemons, onToggleFavorite }: F
               aria-label={pokemon.name.fr}
             >
               <img src={pokemon.sprites.regular} alt={pokemon.name.fr} />
+             
+              //--- Bouton de suppression du favori
+             
               <h3>{pokemon.name.fr}</h3>
               <button
                 className="remove-favorite-btn"

@@ -5,9 +5,9 @@ import { useGetPokemonQuery } from './store/slices/pokemonApi'
 import { addTrainer, setActiveTrainer, toggleFavorite as toggleFavoritAction } from './store/slices/trainers-slices'
 import { useAppDispatch } from './hooks/useAppDispatch'
 import { useAppSelector } from './hooks/useAppSelector'
-import TrainerSection from './components/TrainerSection'
-import TrainerList from './components/TrainerList'
-import FavoritesList from './components/FavoritesList'
+import TrainerSection from './components/TrainerSection/TrainerSection'
+import TrainerList from './components/TrainerList/TrainerList'
+import FavoritesList from './components/FavoritesList/FavoritesList'
 
 function App() {
   const navigate = useNavigate()

@@ -1,0 +1,76 @@
+.auth-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  z-index: 1000;
+  min-width: 200px;
+}
+
+.user-info {
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.user-info .role {
+  color: #667eea;
+  font-size: 12px;
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+.logout-button {
+  padding: 10px 20px;
+  background-color: #ff1f1f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.logout-button:hover {
+  background-color: #c70000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 31, 31, 0.4);
+}
+
+.logout-button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .auth-panel {
+    bottom: 10px;
+    right: 10px;
+    padding: 12px;
+    min-width: 160px;
+  }
+
+  .user-info {
+    font-size: 12px;
+  }
+
+  .logout-button {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+}

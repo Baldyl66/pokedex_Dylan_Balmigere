@@ -1,0 +1,15 @@
+{
+  "name": "pokedex-auth-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node backend-auth.mjs",
+    "dev": "node backend-auth.mjs"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.1.2",
+    "cors": "^2.8.5",
+    "cookie-parser": "^1.4.6"
+  }
+}
