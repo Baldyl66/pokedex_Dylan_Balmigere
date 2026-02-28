@@ -13,22 +13,26 @@ function App() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   
-  // Récupère la liste des Pokémons depuis l'API avec gestion du cache
+  //--- Récupère la liste des Pokémons depuis l'API avec gestion du cache
+
   const { data: pokemons = [], isLoading, isFetching } = useGetPokemonQuery()
   
-  // État Redux pour les dresseurs
+  //--- État Redux pour les dresseurs
+
   const trainers = useAppSelector(state => state.trainers.trainers)
   const activeTrainerId = useAppSelector(state => state.trainers.activeTrainerId)
   
-  // État local pour la recherche
-  const [newName, setNewName] = useState(''); // Champ saisie nouveau dresseur
-  const [searchTerm, setSearchTerm] = useState(''); // Filtre de recherche
+  //--- État local pour la recherche
+
+  const [newName, setNewName] = useState('');        //--- Champ saisie nouveau dresseur
+  const [searchTerm, setSearchTerm] = useState(''); //--- Filtre de recherche
 
   const displayedPokemons = pokemons.filter(p =>
     p.name.fr.toLowerCase().includes(searchTerm.trim().toLowerCase())
   );
 
-  // Ajoute un nouveau dresseur avec un maximum de 2
+  //--- Ajoute un nouveau dresseur avec un maximum de 2
+
   const handleAddTrainer = () => {
     if (newName.trim() && trainers.length < 2) {
       dispatch(addTrainer(newName));
@@ -36,13 +40,15 @@ function App() {
     }
   };
 
-  // Ajoute ou retire un Pokémon des favoris du dresseur actif
+  //--- Ajoute ou retire un Pokémon des favoris du dresseur actif
+
   const toggleFavorite = (pokemonId: number) => {
     if (!activeTrainerId) return;
     dispatch(toggleFavoritAction(pokemonId));
   };
 
-  // Vérifie si un Pokémon est en favori chez le dresseur actif
+  //--- Vérifie si un Pokémon est en favori chez le dresseur actif
+  
   const isFavorite = (pokemonId: number): boolean => {
     if (!activeTrainerId) return false;
     const trainer = trainers.find(t => t.id === activeTrainerId);

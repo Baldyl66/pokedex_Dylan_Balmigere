@@ -23,7 +23,9 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+
     //--- Définir le token et l'utilisateur après login
+
     setAuth: (state, action: PayloadAction<{ accessToken: string; user: { username: string; role: string } }>) => {
       state.accessToken = action.payload.accessToken;
       state.user = action.payload.user;
@@ -32,11 +34,13 @@ const authSlice = createSlice({
     },
 
     //--- Renouveler le token (refresh)
+
     refreshToken: (state, action: PayloadAction<string>) => {
       state.accessToken = action.payload;
     },
 
     //--- Déconnecter l'utilisateur
+
     logout: (state) => {
       state.accessToken = null;
       state.user = null;
@@ -45,11 +49,13 @@ const authSlice = createSlice({
     },
 
     //--- Gérer les erreurs
+
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
 
     //--- Gérer l'état de chargement
+    
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     }

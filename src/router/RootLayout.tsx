@@ -7,6 +7,7 @@ export default function RootLayout() {
   const location = useLocation();
   
   //--- Ne pas afficher AuthPanel sur la page de détail d'un Pokémon
+  
   const isPokemonDetailPage = location.pathname.startsWith('/pokemon/');
 
   return (

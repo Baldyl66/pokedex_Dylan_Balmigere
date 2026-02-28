@@ -10,16 +10,21 @@ const initialState: PokemonCapturedState = {
   capturedPokemonIds: [],
 };
 
-// Redux slice pour gérer les actions liées aux captures de Pokémons
+//--- Redux slice pour gérer les actions liées aux captures de Pokémons
+
 const pokemonSlice = createSlice({
   name: "pokemon",
   initialState,
   reducers: {
-    // Ajoute un Pokémon à la liste des capturés
+
+    //--- Ajoute un Pokémon à la liste des capturés
+
     addCapturedPokemon: (state, action: PayloadAction<number>) => {
       state.capturedPokemonIds.push(action.payload);
     },
-    // Retire un Pokémon de la liste des capturés
+
+    //--- Retire un Pokémon de la liste des capturés
+    
     removeCapturedPokemon: (state, action: PayloadAction<number>) => {
       state.capturedPokemonIds = state.capturedPokemonIds.filter(
         (id) => id !== action.payload

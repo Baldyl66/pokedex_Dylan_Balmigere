@@ -16,7 +16,9 @@ const trainersSlice = createSlice({
   name: "trainers",
   initialState,
   reducers: {
-    // Ajoute un nouveau dresseur
+
+    //--- Ajoute un nouveau dresseur
+
     addTrainer: (state, action: PayloadAction<string>) => {
       if (state.trainers.length < 2) {
         const newTrainer: Trainer = {
@@ -25,28 +27,35 @@ const trainersSlice = createSlice({
           favorites: [],
         };
         state.trainers.push(newTrainer);
-        // Active le premier dresseur créé
+
+        //--- Active le premier dresseur créé
+
         if (state.activeTrainerId === null) {
           state.activeTrainerId = newTrainer.id;
         }
       }
     },
 
-    // Supprime un dresseur
+    //--- Supprime un dresseur
+
     removeTrainer: (state, action: PayloadAction<number>) => {
       state.trainers = state.trainers.filter((t) => t.id !== action.payload);
-      // Si le dresseur supprimé était actif, désactive
+
+      //--- Si le dresseur supprimé était actif, désactive
+
       if (state.activeTrainerId === action.payload) {
         state.activeTrainerId = state.trainers.length > 0 ? state.trainers[0].id : null;
       }
     },
 
-    // Définit le dresseur actif
+    //--- Définit le dresseur actif
+
     setActiveTrainer: (state, action: PayloadAction<number | null>) => {
       state.activeTrainerId = action.payload;
     },
 
-    // Ajoute un Pokémon aux favoris du dresseur actif
+    //--- Ajoute un Pokémon aux favoris du dresseur actif
+    
     toggleFavorite: (state, action: PayloadAction<number>) => {
       if (state.activeTrainerId === null) return;
 

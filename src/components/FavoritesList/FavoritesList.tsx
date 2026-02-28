@@ -32,16 +32,17 @@ export default function FavoritesList({ trainer, pokemons, onToggleFavorite }: F
       <div className="favorites-grid">
         {favoritePokemons.map((pokemon) => (
           <div key={pokemon.pokedex_id} className="favorite-card-container">
+            
             <button
               className="favorite-pokemon-card"
               onClick={() => navigate(`/pokemon/${pokemon.pokedex_id}`)}
               aria-label={pokemon.name.fr}
             >
               <img src={pokemon.sprites.regular} alt={pokemon.name.fr} />
-             
-              //--- Bouton de suppression du favori
-             
               <h3>{pokemon.name.fr}</h3>
+
+               //--- Bouton de suppression du favori
+
               <button
                 className="remove-favorite-btn"
                 onClick={(e) => {
